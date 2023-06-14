@@ -16,37 +16,43 @@
 import sys
 import json
 import os
-
-def merge_dicts(dict1, dict2):
-    # 두 딕셔너리를 병합하는 함수
-    for key in dict2:
-        if key in dict1 and isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
-            # 두 값이 모두 딕셔너리인 경우, 재귀적으로 합침
-            merge_dicts(dict1[key], dict2[key])
-        else:
-            # 두 값 중 하나가 딕셔너리가 아닌 경우, 값을 덮어씀
-            dict1[key] = dict2[key]
-    return dict1
-
-
-def merge_nested_dicts(*dicts):
-    # 중첩된 딕셔너리를 합치는 함수
-    merged_dict = {}
-    for dictionary in dicts:
-        merged_dict = merge_dicts(merged_dict, dictionary)
-    return merged_dict
+from deepmerge import always_merger
 
 def processing_List_String(data):
-    new_data = {"properties": {}}
+    setText = {"type": "text"}
+    setNum = {"type": "long"}
+    setFloat = {"type": "float"}
+    new_data = {}
     for i in range(0,len(data)):
         if type(data[i])==dict:
             if i==0:
-                tmp = merge_nested_dicts(processing_Dict_String(data[i]), processing_Dict_String(data[i+1]))
+                # tmp = merge_nested_dicts(processing_Dict_String(data[i]), processing_Dict_String(data[i+1]))
+                tmp = always_merger.merge(processing_Dict_String(data[i]), processing_Dict_String(data[i+1]))
             else:
                 try:
-                    tmp = merge_nested_dicts(tmp,processing_Dict_String(data[i+1]))
+                    tmp = always_merger.merge(tmp,processing_Dict_String(data[i+1]))
                 except IndexError:
-                    new_data['properties'].update(tmp['properties'])
+                    new_data.update(tmp)
+        elif type(data[i])==list:
+            new_data.update(processing_List_String(data[i]))
+        else:
+            try:
+                tmp = int(data[i])
+                if str(int(data[i])) != str(data[i]):
+                    new_data = setFloat
+                    return new_data
+                else:
+                    new_data = setNum
+                    return new_data
+            except:
+                try:
+                    tmp = float(data[i])
+                    new_data = setFloat
+                    return new_data
+                except:
+                    new_data = setText
+                    return new_data
+
     return new_data
 
 def processing_Dict_String(data):
