@@ -4,6 +4,13 @@
 
 ElasticSearch에 Json 데이터를 넣어주려나, JsonData가 모두 따옴표(” “) 로 묶여 있어 자동 Mapping이 전부 text로 될 때 손수 하나하나 보고 맵핑하기 번거로워 제작
 
+# 의존모듈
+
+### deepmerge
+```bash
+pip3 install deepmerge 
+```
+
 # 주의사항
 
 - 해당 프로그램은 `long` , `float` , `text` 형태로만 Parsing하고 Mapping 합니다. `Keyword`, `date` 등의 형식은 파일 추출 후 직접 수정해 주셔야 합니다.
